@@ -32,11 +32,16 @@ def get_todays_games():
                 home_pitcher_name = 'TBD'
                 away_pitcher_name = 'TBD'
                 
-                # Look for pitchers in MLB data
+                # Look for pitchers in MLB data using direct team name matching
                 for team, pitcher in mlb_pitchers.items():
-                    if any(word in team.lower() for word in game_data['home_team'].lower().split()):
+                    if home_pitcher_name == 'TBD' and team == game_data['home_team']:
                         home_pitcher_name = pitcher
-                    if any(word in team.lower() for word in game_data['away_team'].lower().split()):
+                    elif home_pitcher_name == 'TBD' and any(word in team for word in game_data['home_team'].split() if len(word) > 3):
+                        home_pitcher_name = pitcher
+                    
+                    if away_pitcher_name == 'TBD' and team == game_data['away_team']:
+                        away_pitcher_name = pitcher
+                    elif away_pitcher_name == 'TBD' and any(word in team for word in game_data['away_team'].split() if len(word) > 3):
                         away_pitcher_name = pitcher
                 
                 # Fallback to default if still TBD

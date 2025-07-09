@@ -222,3 +222,30 @@ class MLBScraper:
             if full_name.lower() in team_name.lower():
                 return abbr
         return team_name[:3].upper()
+
+    def _teams_match(self, mlb_team: str, espn_team: str) -> bool:
+        # Normalize both team names
+        mlb_lower = mlb_team.lower()
+        espn_lower = espn_team.lower()
+        
+        # Direct match
+        if mlb_lower == espn_lower:
+            return True
+            
+        # Check key words match
+        mlb_words = set(mlb_lower.split())
+        espn_words = set(espn_lower.split())
+        
+        # Remove common words
+        common_words = {'the', 'of', 'and', 'at'}
+        mlb_words -= common_words
+        espn_words -= common_words
+        
+        # Must have at least 2 matching words or 1 unique identifier
+        unique_identifiers = {'yankees', 'mets', 'dodgers', 'angels', 'giants', 'athletics', 'padres', 'cubs', 'sox'}
+        
+        intersection = mlb_words & espn_words
+        if len(intersection) >= 2 or any(word in unique_identifiers for word in intersection):
+            return True
+            
+        return False
