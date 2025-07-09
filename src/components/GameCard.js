@@ -26,8 +26,8 @@ const PitcherCard = ({ pitcher, isHome, teamStats, expectedBatters }) => {
         </div>
         <div className="projection">
           <div className="projection-main">
-            <span className="projection-line">{pitcher.projection.line}</span>
-            <span className="projection-value">{pitcher.projection.strikeouts} K</span>
+            <span className="projection-line">{pitcher.projection.betting_line}</span>
+            <span className="projection-value">{pitcher.projection.projected_strikeouts} K</span>
           </div>
           <div className="confidence" style={{ color: confidenceColor }}>
             {confidence}% confidence
@@ -78,9 +78,9 @@ const PitcherCard = ({ pitcher, isHome, teamStats, expectedBatters }) => {
             <div key={idx} className="batter-item">
               <span className="batter-name">{batter.name}</span>
               <div className="batter-stats">
-                <span className="batter-k-rate">{batter.kRate}% K</span>
-                {batter.vsOpponent > 0 && (
-                  <span className="vs-pitcher">{batter.vsOpponent} K vs {pitcher.name.split(' ')[1]}</span>
+                <span className="batter-k-rate">{batter.k_rate}% K</span>
+                {batter.vs_pitcher_history > 0 && (
+                  <span className="vs-pitcher">{batter.vs_pitcher_history} K vs {pitcher.name.split(' ')[1]}</span>
                 )}
               </div>
             </div>
@@ -93,8 +93,8 @@ const PitcherCard = ({ pitcher, isHome, teamStats, expectedBatters }) => {
 
 const GameCard = ({ game }) => {
   const topProjection = Math.max(
-    game.homePitcher.projection.strikeouts,
-    game.awayPitcher.projection.strikeouts
+    game.homePitcher.projection.projected_strikeouts,
+    game.awayPitcher.projection.projected_strikeouts
   );
   
   const isTopGame = topProjection >= 8.5;
