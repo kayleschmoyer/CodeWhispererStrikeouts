@@ -15,6 +15,7 @@ def root():
 def get_todays_games():
     try:
         games_data = scraper.get_todays_games()
+        mlb_pitchers = scraper.get_mlb_pitchers()
         
         if not games_data:
             print("No games data found from ESPN scraper")
@@ -24,8 +25,27 @@ def get_todays_games():
         
         for idx, game_data in enumerate(games_data):  # Process all games
             try:
-                home_pitcher_name = game_data.get('home_pitcher', 'TBD')
-                away_pitcher_name = game_data.get('away_pitcher', 'TBD')
+                # Get actual pitcher names from MLB.com data
+                home_team_short = game_data['home_team'].split()[-1]  # Get last word (Yankees, Red Sox, etc.)
+                away_team_short = game_data['away_team'].split()[-1]
+                
+                home_pitcher_name = 'TBD'
+                away_pitcher_name = 'TBD'
+                
+                # Look for pitchers in MLB data
+                for team, pitcher in mlb_pitchers.items():
+                    if any(word in team.lower() for word in game_data['home_team'].lower().split()):
+                        home_pitcher_name = pitcher
+                    if any(word in team.lower() for word in game_data['away_team'].lower().split()):
+                        away_pitcher_name = pitcher
+                
+                # Fallback to default if still TBD
+                if home_pitcher_name == 'TBD':
+                    home_pitcher_name = scraper._get_probable_pitcher(home_team_short)
+                if away_pitcher_name == 'TBD':
+                    away_pitcher_name = scraper._get_probable_pitcher(away_team_short)
+                
+                print(f"Game: {away_pitcher_name} ({game_data['away_team']}) @ {home_pitcher_name} ({game_data['home_team']})")
                 
                 # Process all games
                 
@@ -69,13 +89,13 @@ def get_todays_games():
                     },
                     "gameTime": game_data['game_time'],
                     "homePitcher": {
-                        "name": home_pitcher_name,
+                        "name": home_pitcher_name if home_pitcher_name != 'TBD' else f"{game_data['home_team']} Starter",
                         "hand": home_pitcher_stats['handedness'],
                         "stats": {k: v for k, v in home_pitcher_stats.items() if k != 'handedness'},
                         "projection": home_projection
                     },
                     "awayPitcher": {
-                        "name": away_pitcher_name,
+                        "name": away_pitcher_name if away_pitcher_name != 'TBD' else f"{game_data['away_team']} Starter",
                         "hand": away_pitcher_stats['handedness'],
                         "stats": {k: v for k, v in away_pitcher_stats.items() if k != 'handedness'},
                         "projection": away_projection
