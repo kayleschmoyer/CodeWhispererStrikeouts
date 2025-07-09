@@ -22,6 +22,7 @@ class MLBScraper:
 
     def _normalize_team_name(self, name: str) -> str:
         name = name.replace("Chi", "Chicago")
+        name = name.replace("Chicagocago", "Chicago")
         name = name.replace("NY", "New York")
         name = name.replace("LA", "Los Angeles")
         name = name.replace("SF", "San Francisco")
@@ -49,6 +50,8 @@ class MLBScraper:
                     if 'probablePitcher' in game['teams']['away']:
                         pitchers[away_team] = game['teams']['away']['probablePitcher']['fullName']
             print(f"✅ Found {len(pitchers)} probable pitchers")
+            for team, pitcher in pitchers.items():
+                print(f"  {team}: {pitcher}")
             return pitchers
         except Exception as e:
             print(f"❌ Error getting MLB pitchers: {e}")

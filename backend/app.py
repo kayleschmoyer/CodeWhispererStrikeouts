@@ -32,17 +32,58 @@ def get_todays_games():
                 home_pitcher_name = 'TBD'
                 away_pitcher_name = 'TBD'
                 
-                # Look for pitchers in MLB data using direct team name matching
-                for team, pitcher in mlb_pitchers.items():
-                    if home_pitcher_name == 'TBD' and team == game_data['home_team']:
-                        home_pitcher_name = pitcher
-                    elif home_pitcher_name == 'TBD' and any(word in team for word in game_data['home_team'].split() if len(word) > 3):
-                        home_pitcher_name = pitcher
-                    
-                    if away_pitcher_name == 'TBD' and team == game_data['away_team']:
-                        away_pitcher_name = pitcher
-                    elif away_pitcher_name == 'TBD' and any(word in team for word in game_data['away_team'].split() if len(word) > 3):
-                        away_pitcher_name = pitcher
+                # Debug: show what we're trying to match
+                print(f"Looking for pitchers for: {game_data['away_team']} @ {game_data['home_team']}")
+                
+                # Direct team name to MLB team mapping
+                team_mapping = {
+                    'Baltimore': 'Baltimore Orioles',
+                    'New York': ['New York Yankees', 'New York Mets'],
+                    'Seattle': 'Seattle Mariners',
+                    'Boston': 'Boston Red Sox',
+                    'Colorado': 'Colorado Rockies',
+                    'Miami': 'Miami Marlins',
+                    'Cincinnati': 'Cincinnati Reds',
+                    'Chicago': ['Chicago Cubs', 'Chicago White Sox'],
+                    'Minnesota': 'Minnesota Twins',
+                    'Los Angeles': ['Los Angeles Dodgers', 'Los Angeles Angels'],
+                    'Milwaukee': 'Milwaukee Brewers',
+                    'Pittsburgh': 'Pittsburgh Pirates',
+                    'Kansas City': 'Kansas City Royals',
+                    'Toronto': 'Toronto Blue Jays',
+                    'Washington': 'Washington Nationals',
+                    'St. Louis': 'St. Louis Cardinals',
+                    'Cleveland': 'Cleveland Guardians',
+                    'Houston': 'Houston Astros',
+                    'Texas': 'Texas Rangers',
+                    'Arizona': 'Arizona Diamondbacks',
+                    'San Diego': 'San Diego Padres',
+                    'Philadelphia': 'Philadelphia Phillies',
+                    'San Francisco': 'San Francisco Giants',
+                    'Athletics': 'Athletics',
+                    'Atlanta': 'Atlanta Braves'
+                }
+                
+                used_pitchers = set()
+                
+                def find_pitcher(team_name):
+                    if team_name in team_mapping:
+                        mapped_teams = team_mapping[team_name]
+                        if isinstance(mapped_teams, list):
+                            for mapped_team in mapped_teams:
+                                if mapped_team in mlb_pitchers and mlb_pitchers[mapped_team] not in used_pitchers:
+                                    pitcher = mlb_pitchers[mapped_team]
+                                    used_pitchers.add(pitcher)
+                                    return pitcher
+                        else:
+                            if mapped_teams in mlb_pitchers and mlb_pitchers[mapped_teams] not in used_pitchers:
+                                pitcher = mlb_pitchers[mapped_teams]
+                                used_pitchers.add(pitcher)
+                                return pitcher
+                    return 'TBD'
+                
+                home_pitcher_name = find_pitcher(game_data['home_team'])
+                away_pitcher_name = find_pitcher(game_data['away_team'])
                 
                 # Fallback to default if still TBD
                 if home_pitcher_name == 'TBD':
